@@ -1,0 +1,67 @@
+<template>
+	<view class="flex-column flex-1 justify-center align-center border-test">
+		<view @touchstart="touchStart" ref="darkBlock" class="flex bg-dark" style="width: 200rpx;height: 200rpx;"></view>
+	</view>
+</template>
+
+<script>
+import utils from '@/utils/index.js';
+const BindingX = uni.requireNativePlugin('bindingx');
+let position = {
+	x: 0,
+	y: 0
+};
+export default {
+	onLoad() {
+		utils.binging.testDemo();
+	},
+	onReady() {},
+	methods: {
+		touchStart(e) {
+			console.log(e);
+			this.start(); 
+		},
+		getEl: function(el) {
+			if (typeof el === 'string' || typeof el === 'number') return el;
+			if (WXEnvironment) {
+				return el.ref;
+			} else {
+				return el instanceof HTMLElement ? el : el.$el;
+			}
+		},
+		start() {
+			const props = [
+				{
+					element: this.getEl(this.$refs.darkBlock),
+					expression: `${position.x}+x+0`,
+					property: 'transform.translateX'
+				},
+				{
+					element: this.getEl(this.$refs.darkBlock),
+					expression: `${position.y}+y+0`,
+					property: 'transform.translateY'
+				}
+			];
+			BindingX.bind(
+				{
+					eventType: 'pan',
+					anchor: this.getEl(this.$refs.darkBlock),
+					exitExpression: '',
+					props
+				},
+				function(e) {
+					// nope
+					console.log(e);
+					if (e.state == 'end') {
+						position.x = e.deltaX;
+						position.y = e.deltaY;
+						console.log('保存成功', position);
+					}
+				}
+			);
+		}
+	}
+};
+</script>
+
+<style></style>
