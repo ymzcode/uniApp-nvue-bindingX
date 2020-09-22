@@ -1,19 +1,25 @@
 <template>
-	<view class="flex-column flex-1 justify-center align-center border-test">
-		<view @touchstart="touchStart" ref="darkBlock" class="flex bg-dark" style="width: 200rpx;height: 200rpx;"></view>
+	<view class="flex-column flex-1 justify-center align-center">
+		<view  @touchstart="touchStart" ref="darkBlock" class="flex bg-dark position-absolute" style="width: 200rpx;height: 200rpx;"></view>
 	</view>
 </template>
 
 <script>
+// 拖动动画页面
 import utils from '@/utils/index.js';
 const BindingX = uni.requireNativePlugin('bindingx');
-let position = {
-	x: 0,
-	y: 0
-};
+
 export default {
 	onLoad() {
 		utils.binging.testDemo();
+	},
+	data() {
+		return {
+			position : {
+				x: 0,
+				y: 0
+			}
+		}
 	},
 	onReady() {},
 	methods: {
@@ -33,12 +39,12 @@ export default {
 			const props = [
 				{
 					element: this.getEl(this.$refs.darkBlock),
-					expression: `${position.x}+x+0`,
+					expression: `x+0`,
 					property: 'transform.translateX'
 				},
 				{
 					element: this.getEl(this.$refs.darkBlock),
-					expression: `${position.y}+y+0`,
+					expression: `y+0`,
 					property: 'transform.translateY'
 				}
 			];
@@ -49,13 +55,13 @@ export default {
 					exitExpression: '',
 					props
 				},
-				function(e) {
+				(e) => {
 					// nope
 					console.log(e);
 					if (e.state == 'end') {
-						position.x = e.deltaX;
-						position.y = e.deltaY;
-						console.log('保存成功', position);
+						this.position.x = e.deltaX;
+						this.position.y = e.deltaY;
+						console.log('保存成功', this.position);
 					}
 				}
 			);
