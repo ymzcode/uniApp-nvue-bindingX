@@ -1,6 +1,6 @@
 <template>
 	<view class="flex-column flex-1 justify-center align-center">
-		<view  @touchstart="touchStart" ref="darkBlock" class="flex bg-dark position-absolute" style="width: 200rpx;height: 200rpx;"></view>
+		<view @touchstart="touchStart" ref="darkBlock" class="flex bg-dark position-absolute" style="width: 200rpx;height: 200rpx;"></view>
 	</view>
 </template>
 
@@ -15,35 +15,28 @@ export default {
 	},
 	data() {
 		return {
-			position : {
+			position: {
 				x: 0,
 				y: 0
-			}
-		}
+			},
+			moveGesToken: null
+		};
 	},
 	onReady() {},
 	methods: {
 		touchStart(e) {
 			console.log(e);
-			this.start(); 
-		},
-		getEl: function(el) {
-			if (typeof el === 'string' || typeof el === 'number') return el;
-			if (WXEnvironment) {
-				return el.ref;
-			} else {
-				return el instanceof HTMLElement ? el : el.$el;
-			}
+			this.start();
 		},
 		start() {
 			const props = [
 				{
-					element: this.getEl(this.$refs.darkBlock),
+					element: utils.binging.getEl(this.$refs.darkBlock),
 					expression: `x+0`,
 					property: 'transform.translateX'
 				},
 				{
-					element: this.getEl(this.$refs.darkBlock),
+					element: utils.binging.getEl(this.$refs.darkBlock),
 					expression: `y+0`,
 					property: 'transform.translateY'
 				}
@@ -51,16 +44,17 @@ export default {
 			BindingX.bind(
 				{
 					eventType: 'pan',
-					anchor: this.getEl(this.$refs.darkBlock),
+					anchor: utils.binging.getEl(this.$refs.darkBlock),
 					exitExpression: '',
 					props
 				},
-				(e) => {
+				e => {
 					// nope
 					console.log(e);
 					if (e.state == 'end') {
 						this.position.x = e.deltaX;
 						this.position.y = e.deltaY;
+						this.moveGesToken = e.token;
 						console.log('保存成功', this.position);
 					}
 				}
