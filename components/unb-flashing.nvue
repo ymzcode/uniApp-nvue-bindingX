@@ -1,0 +1,90 @@
+<template>
+	<view class="position-relative">
+		<view ref="LevelLight" >
+			<uni-icons type="smallcircle-filled" color="#f13d35" size="35"></uni-icons>
+		</view>
+	</view>
+</template>
+
+<script>
+import utils from '@/utils/index.js';
+const Binding = uni.requireNativePlugin('bindingx');
+let isStop = false;
+let LevelLightBinding = null;
+export default {
+	props: {
+		lightType: {
+			type: String,
+			default: ''
+		}
+	},
+	computed: {
+	},
+	mounted() {
+		isStop = false;
+		this.startFlashing();
+	},
+	onUnload() {
+		isStop = true;
+		Binding.unbind({
+			token: LevelLightBinding
+		});
+	},
+	beforeDestroy() {
+		isStop = true;
+		Binding.unbind({
+			token: LevelLightBinding
+		});
+	},
+	methods: {
+		startFlashing() {
+			let _self = this;
+			// let main_image = this.getEl(this.$refs.header);
+			let LevelLight = null;
+			try {
+				LevelLight = utils.binging.getEl(this.$refs.LevelLight);
+			} catch (e) {
+				//TODO handle the exception
+				console.log('LevelLight err', e);
+			}
+			// 当获取不到LevelLight节点时（这时可能节点还没有渲染出来）
+			// 延迟800毫秒重新尝试获取
+			if (!LevelLight) {
+				return;
+			}
+			const props = [
+				{
+					element: LevelLight,
+					property: 'opacity',
+					expression: `easeInOutBack(t,1,-1,800)`
+				}
+			];
+
+			LevelLightBinding = Binding.bind(
+				{
+					eventType: 'timing',
+					exitExpression: 't>800',
+					props
+				},
+				function(res) {
+					// console.log(res);
+					if (res.state === 'exit') {
+						// console.log('退出动画');
+						Binding.unbind({
+							token: LevelLightBinding
+						});
+						_self.startFlashing();
+					}
+				}
+			);
+		},
+		stopFlashing() {
+			Binding.unbind({
+				token: LevelLightBinding
+			});
+		}
+	}
+};
+</script>
+
+<style></style>

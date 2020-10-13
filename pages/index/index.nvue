@@ -29,7 +29,7 @@
 		methods: {
 			gotopage() {
 				uni.navigateTo({
-					url: '/pages/animation/drag-move'
+					url: '/pages/animation/lighting'
 				})
 			}
 		}

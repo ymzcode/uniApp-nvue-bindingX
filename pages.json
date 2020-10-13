@@ -11,6 +11,12 @@
 			"style": {
 				"navigationBarTitleText": "拖动动画"
 			}
+		},
+		{
+			"path": "pages/animation/lighting",
+			"style": {
+				"navigationBarTitleText": "灯光动画"
+			}
 		}
 	],
 	"globalStyle": {

@@ -1,0 +1,106 @@
+<template>
+	<view class="flex-column flex-1 justify-center align-center">
+		<text>灯光动画</text>
+		<view class="flex-column align-center position-relative __light" @tap="changeState">
+			<view v-if="lightState" ref="LightBinding" class="light-animation"></view>
+			<image class="position-absolute" :src="lightImgShow" mode="aspectFill" style="width: 200rpx;height: 300rpx;"></image>
+		</view>
+	</view>
+</template>
+
+<script>
+import utils from '@/utils/index.js';
+const Binding = uni.requireNativePlugin('bindingx');
+let LevelLightBinding = null;
+export default {
+	data() {
+		return {
+			lightState: false,
+			lightImg: {
+				off: '/static/image/lighting/light-off.png',
+				on: '/static/image/lighting/light-on.png'
+			}
+		};
+	},
+	computed: {
+		lightImgShow() {
+			return this.lightState ? this.lightImg.on : this.lightImg.off;
+		}
+	},
+	onUnload() {
+		this.stopFlashing();
+	},
+	beforeDestroy() {
+		this.stopFlashing();
+	},
+	methods: {
+		changeState() {
+			this.lightState = !this.lightState;
+			setTimeout(() => {
+				this.lightState ? this.startFlashing() : this.stopFlashing();
+			});
+		},
+		startFlashing() {
+			let _self = this;
+			let LevelLight = null;
+			try {
+				LevelLight = utils.binging.getEl(this.$refs.LightBinding);
+			} catch (e) {
+				//TODO handle the exception
+				console.log('LevelLight err', e);
+			}
+			// 当获取不到LevelLight节点时（这时可能节点还没有渲染出来）
+			// 延迟800毫秒重新尝试获取
+			if (!LevelLight) {
+				return;
+			}
+			const props = [
+				{
+					element: LevelLight,
+					property: 'opacity',
+					expression: `easeInOutBack(t,1,-1,800)`
+				}
+			];
+
+			LevelLightBinding = Binding.bind(
+				{
+					eventType: 'timing',
+					exitExpression: 't>800',
+					props
+				},
+				function(res) {
+					// console.log(res);
+					if (res.state === 'exit') {
+						// console.log('退出动画');
+						Binding.unbind({
+							token: LevelLightBinding
+						});
+						if (_self.lightState) {
+							_self.startFlashing();
+						}
+					}
+				}
+			);
+		},
+		stopFlashing() {
+			Binding.unbind({
+				token: LevelLightBinding
+			});
+		}
+	}
+};
+</script>
+
+<style scoped lang="scss">
+.__light {
+	width: 400rpx;
+	height: 400rpx;
+}
+.light-animation {
+	position: relative;
+	width: 220rpx;
+	height: 220rpx;
+	background-color: #fee65e;
+	border-radius: 300rpx;
+}
+</style>
